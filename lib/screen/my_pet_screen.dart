@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'custom_drawer.dart';  // Importa la clase CustomDrawer
+import '../screen/history_screen.dart';
+import '../screen/create_new_appointments_screen.dart';
+import '../screen/store_screen.dart';
 
 class MiMascotaScreen extends StatelessWidget {
   // Creamos la GlobalKey para el Scaffold
@@ -144,12 +147,9 @@ class MiMascotaScreen extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 15),
-
-                  _buildEstadoItem(
-                      Icons.favorite, 'Salud', 'Anormal', 'Contactar Vet'),
-                  _buildEstadoItem(Icons.fastfood, 'Alimentación', 'Hambrienta',
-                      'Ir a la tienda'),
-                  _buildEstadoItem(Icons.history, 'Historial', '', 'Ver historial'),
+                  _buildEstadoItem(Icons.favorite, 'Salud', 'Anormal', 'Contactar Vet',  ConsultaScreen()),
+                  _buildEstadoItem(Icons.fastfood, 'Alimentación', 'Hambrienta', 'Ir a la tienda', TiendaScreen()),
+                  _buildEstadoItem(Icons.history, 'Historial', '', 'Ver historial', HistorialScreen()),
                 ],
               ),
             ),
@@ -184,31 +184,35 @@ class MiMascotaScreen extends StatelessWidget {
   }
 
   Widget _buildEstadoItem(
-      IconData icon, String title, String subtitle, String buttonText) {
+      IconData icon, String title, String subtitle, String buttonText, Widget nextScreen) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         children: [
           Icon(icon, color: Colors.blueAccent),
           SizedBox(width: 10),
-          Text(
-            title,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Column( // Usamos una columna para mostrar el título y subtítulo en vertical
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              if (subtitle.isNotEmpty) // Solo mostramos el subtítulo si no está vacío
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                ),
+            ],
           ),
-          SizedBox(width: 10),
-          if (subtitle.isNotEmpty)
-            Text(
-              subtitle,
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-            ),
           Spacer(),
-          _buildActionButton(buttonText, Colors.blueAccent),
+          _buildActionButton(buttonText, Colors.blueAccent, nextScreen),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton(String text, Color color) {
+  Widget _buildActionButton(String text, Color color, Widget nextScreen) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
@@ -216,8 +220,15 @@ class MiMascotaScreen extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 1, vertical: 8),
         minimumSize: Size(150, 40), // Tamaño fijo para el botón (ancho, altura)
       ),
-      onPressed: () {},
+      onPressed: () {
+        // Navega hacia la pantalla que se pasa como argumento
+        Navigator.push(
+          _scaffoldKey.currentContext!, // Se usa el contexto desde el ScaffoldKey
+          MaterialPageRoute(builder: (context) => nextScreen),
+        );
+      },
       child: Text(text, style: TextStyle(color: Colors.white, fontSize: 14)),
     );
   }
+
 }

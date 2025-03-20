@@ -15,6 +15,7 @@ class MiCuentaScreen extends StatefulWidget {
 class _MiCuentaScreenState extends State<MiCuentaScreen> {
   bool _isEditing = false;
   bool _showMoreOptions = false;
+  bool _isLoading = false; // Agregado para el estado de carga.
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -49,6 +50,10 @@ class _MiCuentaScreenState extends State<MiCuentaScreen> {
       _userProfile!.name = _nameController.text;
       _userProfile!.lastName = _lastNameController.text;
 
+      setState(() {
+        _isLoading = true;
+      });
+
       bool success = await editProfileService.updateUserProfile(_userProfile!);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -57,11 +62,15 @@ class _MiCuentaScreenState extends State<MiCuentaScreen> {
         setState(() {
           _isEditing = false;
           _showMoreOptions = false;
+          _isLoading = false;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al actualizar el perfil')),
         );
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -139,22 +148,32 @@ class _MiCuentaScreenState extends State<MiCuentaScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isEditing = !_isEditing;
-                    _showMoreOptions = _isEditing;
-                    if (!_isEditing) _saveProfile();
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 100),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                ),
-                child: Text(
-                  _isEditing ? "Guardar" : "Editar",
-                  style: TextStyle(fontSize: 20, fontFamily: 'Outfit', fontWeight: FontWeight.bold, color: Colors.white),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isEditing = !_isEditing;
+                      _showMoreOptions = _isEditing;
+                      if (!_isEditing) _saveProfile();
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          _isEditing ? "Guardar" : "Editar",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
               SizedBox(height: 30),

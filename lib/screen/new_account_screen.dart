@@ -114,20 +114,31 @@ class _NuevaCuentaScreenState extends State<NuevaCuentaScreen> {
               ),
             ),
             SizedBox(height: 20),
-            _isLoading
-                ? CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _register,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 100),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            // Botón Crear con el mismo tamaño
+            Container(
+              width: double.infinity, // El botón ocupa todo el ancho disponible
+              height: 50, // Altura fija
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator()) // Cargando cuando se está registrando
+                  : ElevatedButton(
+                      onPressed: _register,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(vertical: 0), // El padding ya lo controlamos con el Container
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15), // Bordes redondeados
+                        ),
+                      ),
+                      child: Text(
+                        "Crear",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                    child: Text(
-                      "Crear",
-                      style: TextStyle(fontSize: 20, fontFamily: 'Outfit', fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                  ),
+            ),
             SizedBox(height: 55),
             Text(
               "o regístrate con:",

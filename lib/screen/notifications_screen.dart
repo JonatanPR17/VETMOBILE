@@ -66,21 +66,6 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
               }).toList(),
             ),
           ),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(10),
-            color: Color(0xFFD0E4FF),
-            child: Center(
-              child: Text(
-                "Sistema Médico - Equipo 3",
-                style: TextStyle(
-                  color: Colors.black38,
-                  fontFamily: 'Comfortaa',
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );

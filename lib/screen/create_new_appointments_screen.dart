@@ -220,21 +220,23 @@ class _ConsultaScreenState extends State<ConsultaScreen> {
                   SizedBox(
                     width: double.infinity,
                     height: 50,
-                    child: _isLoading
-                        ? Center(child: CircularProgressIndicator())
-                        : ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            onPressed: _createAppointment,
-                            child: Text(
-                              'Crear Cita',
-                              style: TextStyle(color: Colors.white, fontSize: 18),
-                            ),
-                          ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: _createAppointment,
+                      child: Text(
+                        'Crear Cita',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

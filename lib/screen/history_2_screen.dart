@@ -1,123 +1,132 @@
 import 'package:flutter/material.dart';
+import 'custom_drawer.dart';  // Asegúrate de tener esta clase para el drawer
+import '../screen/history_screen.dart';
 
-class Historial2Screen extends StatelessWidget {
+class Historial2Screen extends StatefulWidget {
+  @override
+  _Historial2ScreenState createState() => _Historial2ScreenState();
+}
+
+class _Historial2ScreenState extends State<Historial2Screen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Historial',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-        centerTitle: true,
-      ),
+      key: _scaffoldKey,
+      backgroundColor: Colors.white,
+      drawer: CustomDrawer(scaffoldKey: _scaffoldKey), // Custom Drawer
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Tabs
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Actual',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                ),
-                SizedBox(width: 20),
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Recordatorios',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            
-            // Próximas Vacunas
-            _buildSection('Próximas Vacunas', [
-              _buildCard('Vacuna contra la rabia', '24 Jan 2025', 'Dr. Tomy Perez'),
-              _buildCard('Calicivirus', '12 Feb 2025', 'Dr. Tomy Perez'),
-            ]),
-            
-            // Próximos Tratamientos
-            _buildSectionWithBorder('Próximos Tratamientos', [
-              _buildCard('Alergia en la piel', '24 Jan 2025', 'Dr. Tomy Perez'),
-              _buildCard('Alergia en la piel', '12 Feb 2025', 'Dr. Tomy Perez'),
-              _buildCard('Alergia en la piel', '24 Jan 2025', 'Dr. Tomy Perez'),
-              _buildCard('Alergia en la piel', '12 Feb 2025', 'Dr. Tomy Perez'),
-            ]),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSection(String title, List<Widget> cards) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                title,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              SizedBox(height: 40),
+              // Row para el icono del menú y el título centrado
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.menu, color: Colors.black, size: 30),
+                    onPressed: () {
+                      _scaffoldKey.currentState?.openDrawer();
+                    },
+                  ),
+                  Spacer(),
+                  Text(
+                    "Historial",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Comfortaa'),
+                  ),
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.blue, size: 30),
+                    onPressed: () {
+                      Navigator.pop(context); // Retroceder a la pantalla anterior
+                    },
+                  ),
+                ],
               ),
-              TextButton(
-                onPressed: () {},
-                child: Text('Ver más >', style: TextStyle(color: Colors.blue)),
+              SizedBox(height: 20),
+              
+              // Tabs de "Actual" y "Recordatorios"
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HistorialScreen()),
+                      );
+                    },
+                    child: Text(
+                      'Actual',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Recordatorios',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                    ),
+                  ),
+                ],
               ),
+              SizedBox(height: 10),
+
+              // Sección de Próximas Vacunas envuelta en tarjeta
+              _buildSectionCard('Próximas Vacunas', [
+                _buildCard('Vacuna contra la rabia', '24 Jan 2025', 'Dr. Tomy Perez'),
+                _buildCard('Calicivirus', '12 Feb 2025', 'Dr. Tomy Perez'),
+              ]),
+
+              // Sección de Próximos Tratamientos envuelta en tarjeta
+              _buildSectionCard('Próximos Tratamientos', [
+                _buildCard('Alergia en la piel', '24 Jan 2025', 'Dr. Tomy Perez'),
+                _buildCard('Alergia en la piel', '12 Feb 2025', 'Dr. Tomy Perez'),
+                _buildCard('Alergia en la piel', '24 Jan 2025', 'Dr. Tomy Perez'),
+                _buildCard('Alergia en la piel', '12 Feb 2025', 'Dr. Tomy Perez'),
+              ]),
             ],
           ),
-          Wrap(spacing: 8, runSpacing: 8, children: cards),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildSectionWithBorder(String title, List<Widget> cards) {
+  // Sección envuelta en tarjeta, similar a HistorialScreen
+  Widget _buildSectionCard(String title, List<Widget> cards) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: 2),  // Reducido el espacio entre secciones
       child: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue, width: 1),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(color: Colors.grey.shade300, blurRadius: 6, spreadRadius: 2),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Wrap(spacing: 8, runSpacing: 8, children: cards),
-            SizedBox(height: 10),
-            Center(
-              child: TextButton(
-                onPressed: () {},
-                child: Column(
-                  children: [
-                    Text('Ver más', style: TextStyle(color: Colors.blue)),
-                    Icon(Icons.keyboard_arrow_down, color: Colors.blue),
-                  ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
-              ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text('Ver más >', style: TextStyle(color: Colors.blue)),
+                ),
+              ],
+            ),
+            Column(
+              children: cards,
             ),
           ],
         ),
@@ -125,15 +134,17 @@ class Historial2Screen extends StatelessWidget {
     );
   }
 
+  // Card individual, se mantiene igual a HistorialScreen
   Widget _buildCard(String title, String subtitle, String doctor) {
     return Container(
       padding: EdgeInsets.all(12),
-      width: 160,
+      margin: EdgeInsets.symmetric(vertical: 2),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: Colors.grey.shade300, blurRadius: 5, spreadRadius: 1),
+          BoxShadow(color: Colors.grey.shade300, blurRadius: 4, spreadRadius: 1),
         ],
       ),
       child: Column(

@@ -1,91 +1,137 @@
 import 'package:flutter/material.dart';
+import 'custom_drawer.dart';  // Asegúrate de tener esta clase para el drawer
+import '../screen/history_2_screen.dart';
+import '../screen/create_new_appointments_screen.dart'; // Importa la pantalla de Crear Nueva Cita
 
-class HistorialScreen extends StatelessWidget {
+class HistorialScreen extends StatefulWidget {
+  @override
+  _HistorialScreenState createState() => _HistorialScreenState();
+}
+
+class _HistorialScreenState extends State<HistorialScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Historial',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-        centerTitle: true,
-      ),
+      key: _scaffoldKey,
+      backgroundColor: Colors.white,
+      drawer: CustomDrawer(scaffoldKey: _scaffoldKey), // Custom Drawer
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Tabs
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Actual',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 40),
+              // Row para el icono del menú y el título centrado
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.menu, color: Colors.black, size: 30),
+                    onPressed: () {
+                      _scaffoldKey.currentState?.openDrawer();
+                    },
                   ),
-                ),
-                SizedBox(width: 20),
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Recordatorios',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  Spacer(),
+                  Text(
+                    "Historial",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Comfortaa'),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            
-            // Vacunas
-            _buildSection('Vacunas', [
-              _buildCard('Vacuna contra la rabia', '24 Jan 2025', 'Dr. Tomy Perez'),
-              _buildCard('Calicivirus', '12 Feb 2025', 'Dr. Tomy Perez'),
-            ]),
-            
-            // Alergias
-            _buildSection('Alergias', [
-              _buildCard('Alergia en la piel', 'Puede ir acompañado de síntomas gastrointestinales.', 'Dr. Tomy'),
-              _buildCard('Alergia Alimentaria', 'Vómitos y diarrea o signos dermatológicos', 'Dr. Tomy'),
-            ]),
-            
-            // Citas
-            _buildCitasSection(),
-          ],
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.blue, size: 30),
+                    onPressed: () {
+                      Navigator.pop(context); // Retroceder a la pantalla anterior
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              
+              // Tabs de "Actual" y "Recordatorios"
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Actual',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Historial2Screen()),
+                      );
+                    },
+                    child: Text(
+                      'Recordatorios',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+
+              // Sección de Vacunas envuelta en tarjeta
+              _buildSectionCard('Vacunas', [
+                _buildCard('Vacuna contra la rabia', '24 Jan 2025', 'Dr. Tomy Perez'),
+                _buildCard('Calicivirus', '12 Feb 2025', 'Dr. Tomy Perez'),
+              ]),
+
+              // Sección de Alergias envuelta en tarjeta
+              _buildSectionCard('Alergias', [
+                _buildCard('Alergia en la piel', 'Puede ir acompañado de síntomas gastrointestinales.', 'Dr. Tomy'),
+                _buildCard('Alergia Alimentaria', 'Vómitos y diarrea o signos dermatológicos', 'Dr. Tomy'),
+              ]),
+
+              // Sección de Citas envuelta en tarjeta
+              _buildCitasSection(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSection(String title, List<Widget> cards) {
+  // Sección envolvente con tarjeta
+  Widget _buildSectionCard(String title, List<Widget> cards) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text('Ver más >', style: TextStyle(color: Colors.blue)),
-              ),
-            ],
-          ),
-          Wrap(spacing: 8, runSpacing: 8, children: cards),
-        ],
+      padding: EdgeInsets.symmetric(vertical: 2),  // Reducido el espacio entre secciones
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(color: Colors.grey.shade300, blurRadius: 6, spreadRadius: 2),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text('Ver más >', style: TextStyle(color: Colors.blue)),
+                ),
+              ],
+            ),
+            Column(
+              children: cards,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -93,12 +139,13 @@ class HistorialScreen extends StatelessWidget {
   Widget _buildCard(String title, String subtitle, String doctor) {
     return Container(
       padding: EdgeInsets.all(12),
-      width: 160,
+      margin: EdgeInsets.symmetric(vertical: 2),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: Colors.grey.shade300, blurRadius: 5, spreadRadius: 1),
+          BoxShadow(color: Colors.grey.shade300, blurRadius: 4, spreadRadius: 1),
         ],
       ),
       child: Column(
@@ -116,14 +163,14 @@ class HistorialScreen extends StatelessWidget {
 
   Widget _buildCitasSection() {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: 2),  // Reducido el espacio entre secciones
       child: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
-            BoxShadow(color: Colors.grey.shade300, blurRadius: 5, spreadRadius: 1),
+            BoxShadow(color: Colors.grey.shade300, blurRadius: 6, spreadRadius: 2),
           ],
         ),
         child: Column(
@@ -131,7 +178,7 @@ class HistorialScreen extends StatelessWidget {
           children: [
             Text(
               'Citas',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 5),
             Text(
@@ -139,17 +186,31 @@ class HistorialScreen extends StatelessWidget {
               style: TextStyle(color: Colors.black54),
             ),
             SizedBox(height: 10),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                ),
-                child: Text(
-                  'Agregar Cita',
-                  style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+            // Aquí se hace el cambio para que el botón se vea igual que en CitasScreen
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ConsultaScreen()),  // Asegúrate de tener esta pantalla
+                    );
+                  },
+                  child: Text(
+                    'Agregar Cita',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
