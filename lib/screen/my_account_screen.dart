@@ -51,7 +51,7 @@ class _MiCuentaScreenState extends State<MiCuentaScreen> {
       _userProfile!.lastName = _lastNameController.text;
 
       setState(() {
-        _isLoading = true;
+        _isLoading = true; // Activar el estado de carga antes de la solicitud
       });
 
       bool success = await editProfileService.updateUserProfile(_userProfile!);
@@ -62,14 +62,14 @@ class _MiCuentaScreenState extends State<MiCuentaScreen> {
         setState(() {
           _isEditing = false;
           _showMoreOptions = false;
-          _isLoading = false;
+          _isLoading = false; // Finaliza el estado de carga
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al actualizar el perfil')),
         );
         setState(() {
-          _isLoading = false;
+          _isLoading = false; // Finaliza el estado de carga si hay un error
         });
       }
     }
@@ -148,26 +148,29 @@ class _MiCuentaScreenState extends State<MiCuentaScreen> {
                 ),
               ),
               SizedBox(height: 20),
+              // Botón "Editar / Guardar" manteniendo el tamaño
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 55,  // Tamaño consistente con el login screen
                 child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _isEditing = !_isEditing;
-                      _showMoreOptions = _isEditing;
-                      if (!_isEditing) _saveProfile();
-                    });
-                  },
+                  onPressed: _isLoading // Deshabilita el botón si está en proceso de carga
+                      ? null
+                      : () {
+                          setState(() {
+                            _isEditing = !_isEditing; // Cambia entre editar y guardar
+                            _showMoreOptions = _isEditing; // Muestra más opciones cuando esté en edición
+                            if (!_isEditing) _saveProfile(); // Si no está en modo edición, guarda el perfil
+                          });
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: _isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
+                      ? CircularProgressIndicator(color: Colors.white) // Muestra el indicador de carga
                       : Text(
-                          _isEditing ? "Guardar" : "Editar",
+                          _isEditing ? "Guardar" : "Editar", // Cambia el texto entre "Editar" y "Guardar"
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

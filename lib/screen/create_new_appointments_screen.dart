@@ -11,7 +11,7 @@ class ConsultaScreen extends StatefulWidget {
 class _ConsultaScreenState extends State<ConsultaScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
+  bool _isLoading = false; // Estado de carga
 
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
@@ -95,7 +95,7 @@ class _ConsultaScreenState extends State<ConsultaScreen> {
 
   Future<void> _createAppointment() async {
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
+      setState(() => _isLoading = true); // Activar el estado de carga
       try {
         final appointment = Appointment(
           appointmentNumber: 0,
@@ -122,7 +122,7 @@ class _ConsultaScreenState extends State<ConsultaScreen> {
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       } finally {
-        setState(() => _isLoading = false);
+        setState(() => _isLoading = false); // Desactivar el estado de carga
       }
     }
   }
@@ -217,6 +217,7 @@ class _ConsultaScreenState extends State<ConsultaScreen> {
                     ),
                   ),
                   SizedBox(height: 20),
+                  // Aquí el botón con el comportamiento similar al login screen
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -227,15 +228,17 @@ class _ConsultaScreenState extends State<ConsultaScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: _createAppointment,
-                      child: Text(
-                        'Crear Cita',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      onPressed: _isLoading ? null : _createAppointment, // Deshabilitar el botón cuando esté cargando
+                      child: _isLoading
+                          ? CircularProgressIndicator(color: Colors.white) // Mostrar indicador de carga cuando esté cargando
+                          : Text(
+                              'Crear Cita',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
                 ],

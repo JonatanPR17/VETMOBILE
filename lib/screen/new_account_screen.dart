@@ -17,7 +17,7 @@ class _NuevaCuentaScreenState extends State<NuevaCuentaScreen> {
 
   bool _verPassword = false;
   bool _verConfirmarPassword = false;
-  bool _isLoading = false;
+  bool _isLoading = false;  // Variable para controlar el estado de carga
 
   @override
   void dispose() {
@@ -33,7 +33,7 @@ class _NuevaCuentaScreenState extends State<NuevaCuentaScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
-      _isLoading = true;
+      _isLoading = true; // Activamos el estado de carga
     });
 
     final authService = AuthService();
@@ -45,7 +45,7 @@ class _NuevaCuentaScreenState extends State<NuevaCuentaScreen> {
     );
 
     setState(() {
-      _isLoading = false;
+      _isLoading = false; // Devolvemos el estado a normal
     });
 
     if (user != null) {
@@ -119,9 +119,9 @@ class _NuevaCuentaScreenState extends State<NuevaCuentaScreen> {
               width: double.infinity, // El botón ocupa todo el ancho disponible
               height: 50, // Altura fija
               child: _isLoading
-                  ? Center(child: CircularProgressIndicator()) // Cargando cuando se está registrando
+                  ? Center(child: CircularProgressIndicator()) // Mostrar indicador de carga
                   : ElevatedButton(
-                      onPressed: _register,
+                      onPressed: _isLoading ? null : _register, // Desactivar si está cargando
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         padding: EdgeInsets.symmetric(vertical: 0), // El padding ya lo controlamos con el Container
