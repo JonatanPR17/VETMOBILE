@@ -64,13 +64,18 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 20),
-          Image.asset(
-            'assets/images/perro_home.png',
-            height: 300, // Imagen del perro
-          ),
+          SizedBox(height: 10),
+          // Aquí está el ajuste principal para centrar la imagen del perro
           Expanded(
-              child: SizedBox()), // Empuja los botones más abajo sin romper
+            child: Align(
+              alignment: Alignment.center, // Centrar la imagen verticalmente
+              child: Image.asset(
+                'assets/images/perro_home.png',
+                height: 300, // Imagen del perro con tamaño fijo
+              ),
+            ),
+          ),
+          // Empuja los botones más abajo sin romper
           Container(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -98,7 +103,7 @@ class HomeScreen extends StatelessWidget {
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Outfit'),
+                          fontFamily: 'Comfortaa'),
                     ),
                   ),
                 ),
@@ -123,15 +128,14 @@ class HomeScreen extends StatelessWidget {
                           color: Colors.black,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Outfit'),
+                          fontFamily: 'Comfortaa'),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(
-              height: 50), // Ajusta este valor para mover los botones más abajo
+          SizedBox(height: 50), // Ajusta este valor para mover los botones más abajo
         ],
       ),
     );

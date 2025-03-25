@@ -33,12 +33,14 @@ class CustomDrawer extends StatelessWidget {
     return Drawer(
       child: Column(
         children: <Widget>[
-          DrawerHeader(
+          // DrawerHeader con altura específica y sin margen extra
+          Container(
+            height: 200, // Establecer altura fija
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.white, // Fondo blanco
             ),
             child: FutureBuilder<UserProfile?>(
-              future: authUsecase.isLogin(), // Llamada asíncrona para obtener los datos del usuario
+              future: authUsecase.isLogin(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -49,7 +51,7 @@ class CustomDrawer extends StatelessWidget {
                     child: Text(
                       "No hay sesión activa.",
                       style: TextStyle(
-                        color: Colors.red,
+                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -59,13 +61,14 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
           ),
+          
+          // Aquí se asegura que la lista ocupe todo el espacio disponible sin crear espacios adicionales
           Expanded(
             child: Container(
-              color: Colors.black,
+              color: Colors.black, // Fondo negro para la parte inferior
               child: ListView(
-                padding: EdgeInsets.zero,
+                padding: EdgeInsets.zero, // Eliminar padding extra
                 children: <Widget>[
-                  SizedBox(height: 20),
                   _buildListTile(context, Icons.person, 'Mi Cuenta', MiCuentaScreen()),
                   _buildListTile(context, Icons.home, 'Inicio', WelcomeScreen()),
                   _buildListTile(context, Icons.store, 'Tienda', TiendaScreen()),
@@ -84,52 +87,58 @@ class CustomDrawer extends StatelessWidget {
   }
 
   Widget _buildUserHeader(BuildContext context, UserProfile userProfile) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Stack(
-          children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundImage: _profileImage != null
-                  ? FileImage(_profileImage!)
-                  : AssetImage('assets/images/logo_company.jpg') as ImageProvider,
-            ),
-            Positioned(
-              bottom: 5,
-              right: 5,
-              child: GestureDetector(
-                onTap: () {
-                  _pickImage(context, (updatedImage) {
-                    _profileImage = updatedImage;
-                  });
-                },
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF159EEC),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                    size: 15,
+    return Container(
+      width: double.infinity, // Ocupa todo el ancho del DrawerHeader
+      height: double.infinity, // Ocupa todo el alto del DrawerHeader
+      padding: EdgeInsets.zero, // Sin padding
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center, // Centra verticalmente
+        crossAxisAlignment: CrossAxisAlignment.center, // Centra horizontalmente
+        children: [
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundImage: _profileImage != null
+                    ? FileImage(_profileImage!)
+                    : AssetImage('assets/images/logo_company.jpg') as ImageProvider,
+              ),
+              Positioned(
+                bottom: 5,
+                right: 5,
+                child: GestureDetector(
+                  onTap: () {
+                    _pickImage(context, (updatedImage) {
+                      _profileImage = updatedImage;
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF159EEC),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                      size: 15,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        Text(
-          "${userProfile.name} ${userProfile.lastName}",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+            ],
           ),
-        ),
-      ],
+          SizedBox(height: 10),
+          Text(
+            "${userProfile.name} ${userProfile.lastName}",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

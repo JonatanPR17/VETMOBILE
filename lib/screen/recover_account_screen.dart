@@ -10,7 +10,7 @@ class _RecuperarCuentaScreenState extends State<RecuperarCuentaScreen> {
   bool _isLoading = false; // Estado de carga
   bool _isEmailFieldFocused = false; // Estado de enfoque para el campo de email
   final _formKey = GlobalKey<FormState>();
-  
+
   final TextEditingController _emailController = TextEditingController();
   FocusNode _emailFocusNode = FocusNode();
 
@@ -68,7 +68,8 @@ class _RecuperarCuentaScreenState extends State<RecuperarCuentaScreen> {
         decoration: InputDecoration(
           labelText: hintText,
           labelStyle: TextStyle(
-            color: focusNode.hasFocus || controller.text.isNotEmpty ? Colors.black : Colors.black,
+            // Color predeterminado para la etiqueta
+            color: focusNode.hasFocus || controller.text.isNotEmpty ? null : null, // Deja que Flutter use el color predeterminado
           ),
           hintText: focusNode.hasFocus || controller.text.isNotEmpty ? null : hintText,
           filled: true,

@@ -279,12 +279,18 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
-  bool isLoading = false; // Usamos un solo estado booleano para controlar la carga
+  bool isLoading = false;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-  FocusNode _emailFocusNode = FocusNode();
-  FocusNode _passwordFocusNode = FocusNode();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -344,35 +350,43 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              _buildTextField("Correo electrónico", false, _emailFocusNode),
-              SizedBox(height: 10),
-              _buildTextField("Contraseña", true, _passwordFocusNode),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _buildTextField("Correo electrónico", false, _emailController),
+                    SizedBox(height: 10),
+                    _buildTextField("Contraseña", true, _passwordController),
+                  ],
+                ),
+              ),
               SizedBox(height: 20),
-              // Aquí el botón "Ingresar" con el mismo tamaño que "Agregar nueva cita"
               Container(
-                width: double.infinity, // Esto asegura que el botón ocupe todo el ancho disponible
-                height: 50, // Altura fija
+                width: double.infinity,
+                height: 50,
                 child: ElevatedButton(
                   onPressed: isLoading
-                      ? null // Deshabilitamos el botón si está cargando
-                      : () => login(context),
+                      ? null
+                      : () {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            login(context);
+                          }
+                        },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Fondo azul
-                    padding: EdgeInsets.symmetric(vertical: 0), // El padding ya lo controlamos con el Container
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 0),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15), // Bordes redondeados
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
                   child: isLoading
-                      ? CircularProgressIndicator(
-                          color: Colors.white,
-                        ) // Mostrar CircularProgressIndicator cuando se está cargando
+                      ? CircularProgressIndicator(color: Colors.white)
                       : Text(
                           "Ingresar",
                           style: TextStyle(
-                            fontSize: 20, // Tamaño de la fuente
-                            fontWeight: FontWeight.bold, // Negrita
-                            color: Colors.white, // Texto blanco
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                 ),
@@ -419,57 +433,47 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTextField(String hintText, bool isPassword, FocusNode focusNode) {
-    return Focus(
-      onFocusChange: (hasFocus) {
-        setState(() {});
-      },
-      child: TextFormField(
-        controller: isPassword ? _passwordController : _emailController,
-        obscureText: isPassword && !_isPasswordVisible,
-        focusNode: focusNode,
-        decoration: InputDecoration(
-          labelText: hintText,
-          labelStyle: TextStyle(
-            color: focusNode.hasFocus ||
-                    (isPassword && _passwordController.text.isNotEmpty) ||
-                    (!isPassword && _emailController.text.isNotEmpty)
-                ? Colors.black
-                : Colors.black,
-          ),
-          hintText: focusNode.hasFocus ||
-                  (isPassword && _passwordController.text.isNotEmpty) ||
-                  (!isPassword && _emailController.text.isNotEmpty)
-              ? null
-              : hintText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          filled: true,
-          fillColor: Colors.grey[200],
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                )
-              : null,
+  Widget _buildTextField(String hintText, bool isPassword, TextEditingController controller) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword && !_isPasswordVisible,
+      decoration: InputDecoration(
+        labelText: hintText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-        validator: (value) {
-          if (value == null || value.isEmpty) return "Campo requerido";
-          if (isPassword && hintText == "Contraseña") {
-            if (value.length < 6) {
-              return "La contraseña debe tener al menos 6 caracteres";
-            }
-          }
-          return null;
-        },
+        filled: true,
+        fillColor: Colors.grey[200],
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
+                },
+              )
+            : null,
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) return "Campo requerido";
+
+        if (!isPassword && hintText == "Correo electrónico") {
+          if (!RegExp(r'^[^@]+@[^@]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
+            return "Correo no válido";
+          }
+        }
+
+        if (isPassword && hintText == "Contraseña") {
+          if (value.length < 6) {
+            return "La contraseña debe tener al menos 6 caracteres";
+          }
+        }
+
+        return null;
+      },
     );
   }
 
@@ -500,12 +504,11 @@ class _LoginScreenState extends State<LoginScreen> {
       password: _passwordController.text,
     );
 
-    print(reqData);
     setState(() {
       isLoading = true;
     });
+
     _auth.login(reqData).then((profile) {
-      print("${profile.name} ${profile.lastName} -- ${profile.rol!.name}");
       setState(() {
         isLoading = false;
       });
@@ -522,7 +525,6 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         isLoading = false;
       });
-      print(err);
       SnackBar snackBar = SnackBar(
         content: Text(
             "No se pudo iniciar sesión, verifica tus credenciales e inténtalo nuevamente"),
