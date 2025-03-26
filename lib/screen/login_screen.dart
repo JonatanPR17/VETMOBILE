@@ -629,7 +629,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (await HuellaAuth.authenticate()) {
         final token = await AuthStorage().getToken();
         if (token != null) authenticateWithToken(token);
-        else _showSnackBar("No se encontró un token válido");
+        else _showSnackBar("Para usar tu huella dactilar, inicia sesión por primera vez.");
       } else {
         _showSnackBar("Autenticación biométrica fallida");
       }
