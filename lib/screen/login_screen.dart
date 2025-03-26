@@ -266,12 +266,13 @@ enum HTTP_STATES {
   NONE,
 }*/
 
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:vetmobile/data/usecase/authentication_usecase_imp.dart';
 import '../screen/recover_account_screen.dart';
 import 'package:vetmobile/domain/auth/models/login_request.dart';
 import 'welcome_screen.dart'; // Importa la nueva pantalla
 import '../data/source/localstorage/huella_auth.dart'; // Importa la clase de autenticación biométrica
+import '../data/source/localstorage/auth_storage.dart'; // Importa el almacenamiento
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -298,20 +299,82 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final authen = await HuellaAuth.authenticate();
       if (authen) {
-        // Si la autenticación biométrica es exitosa, proceder al login
-        login(context);
+        // Si la autenticación biométrica es exitosa, proceder al login con el token
+        String? token = await AuthStorage().getToken();
+
+        if (token != null) {
+          // Usar el token almacenado para autenticar al usuario
+          authenticateWithToken(token);
+        } else {
+          // Si no hay token, pedirle al usuario que inicie sesión
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("No se encontró un token válido")),
+          );
+        }
       } else {
-        // Si no es exitosa, mostrar un mensaje de error
+        // Si la autenticación biométrica falla
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Autenticación biométrica fallida")),
         );
       }
     } catch (e) {
-      // En caso de error, mostramos una alerta
+      // En caso de error en la autenticación
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error al intentar autenticar: $e")),
       );
     }
+  }
+
+  // Lógica de autenticación con el token obtenido
+  void authenticateWithToken(String token) {
+    print("Token de autenticación biométrica: $token");
+
+    // Aquí se puede hacer una llamada al backend para validar el token si es necesario.
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => WelcomeScreen()),
+    );
+  }
+
+  // Lógica de login normal
+  void login(BuildContext context) {
+    AuthenticationUsecaseImpl _auth = AuthenticationUsecaseImpl();
+    LoginRequest reqData = LoginRequest(
+      mail: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    setState(() {
+      isLoading = true;
+    });
+
+    _auth.login(reqData).then((profile) async {
+      setState(() {
+        isLoading = false;
+      });
+
+      // Aquí ya no es necesario guardar el token ni el perfil porque eso ya lo hace AuthStorage
+      // Lo único que tenemos que hacer es redirigir al usuario si todo sale bien
+
+      SnackBar snackBar = SnackBar(
+        content: Text("¡Login exitoso!"),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      // Redirigir al WelcomeScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => WelcomeScreen()),
+      );
+    }).catchError((err) {
+      setState(() {
+        isLoading = false;
+      });
+      SnackBar snackBar = SnackBar(
+        content: Text("No se pudo iniciar sesión, verifica tus credenciales e inténtalo nuevamente"),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
   }
 
   @override
@@ -534,40 +597,203 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}*/
 
-  void login(BuildContext context) {
-    AuthenticationUsecaseImpl _auth = AuthenticationUsecaseImpl();
-    LoginRequest reqData = LoginRequest(
-      mail: _emailController.text,
-      password: _passwordController.text,
+import 'package:flutter/material.dart';
+import 'package:vetmobile/data/usecase/authentication_usecase_imp.dart';
+import '../screen/recover_account_screen.dart';
+import 'package:vetmobile/domain/auth/models/login_request.dart';
+import 'welcome_screen.dart'; 
+import '../data/source/localstorage/huella_auth.dart'; 
+import '../data/source/localstorage/auth_storage.dart'; 
+
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _isPasswordVisible = false, isLoading = false;
+  final _emailController = TextEditingController(), _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _authenticate() async {
+    try {
+      if (await HuellaAuth.authenticate()) {
+        final token = await AuthStorage().getToken();
+        if (token != null) authenticateWithToken(token);
+        else _showSnackBar("No se encontró un token válido");
+      } else {
+        _showSnackBar("Autenticación biométrica fallida");
+      }
+    } catch (e) {
+      _showSnackBar("Error al intentar autenticar: $e");
+    }
+  }
+
+  void authenticateWithToken(String token) {
+    print("Token de autenticación biométrica: $token");
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+  }
+
+  void login() {
+    setState(() => isLoading = true);
+    final reqData = LoginRequest(mail: _emailController.text, password: _passwordController.text);
+    AuthenticationUsecaseImpl().login(reqData).then((_) {
+      setState(() => isLoading = false);
+      _showSnackBar("¡Login exitoso!");
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+    }).catchError((_) {
+      setState(() => isLoading = false);
+      _showSnackBar("No se pudo iniciar sesión, verifica tus credenciales");
+    });
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Widget _buildTextField(String hintText, bool isPassword, TextEditingController controller) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword && !_isPasswordVisible,
+      decoration: InputDecoration(
+        labelText: hintText,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        filled: true,
+        fillColor: Colors.grey[200],
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+              )
+            : null,
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) return "Campo requerido";
+        if (!isPassword && hintText == "Correo electrónico" && !RegExp(r'^[^@]+@[^@]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
+          return "Correo no válido";
+        }
+        if (isPassword && hintText == "Contraseña" && value.length < 6) {
+          return "La contraseña debe tener al menos 6 caracteres";
+        }
+        return null;
+      },
     );
+  }
 
-    setState(() {
-      isLoading = true;
-    });
+  Widget _buildInkWellButton(String imagePath, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Color(0xFFD0E4FF),
+          shape: BoxShape.circle,
+          border: Border.all(color: Color(0xFF159EEC), width: 2),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: Image.asset(imagePath, width: 40, height: 40),
+        ),
+      ),
+    );
+  }
 
-    _auth.login(reqData).then((profile) {
-      setState(() {
-        isLoading = false;
-      });
-      SnackBar snackBar = SnackBar(
-        content: Text("¡Login exitoso!"),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => WelcomeScreen()),
-      );
-    }).catchError((err) {
-      setState(() {
-        isLoading = false;
-      });
-      SnackBar snackBar = SnackBar(
-        content: Text(
-            "No se pudo iniciar sesión, verifica tus credenciales e inténtalo nuevamente"),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 40),
+              Align(
+                alignment: Alignment.topLeft,
+                child: IconButton(
+                  icon: Icon(Icons.arrow_back, color: Colors.blue, size: 30),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, spreadRadius: 2)],
+                ),
+                child: CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.white,
+                  backgroundImage: AssetImage('assets/images/logo_company.jpg'),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text("¡Bienvenido!", style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, fontFamily: 'Comfortaa')),
+              SizedBox(height: 5),
+              Text("Inicia sesión ahora", style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.w900, fontFamily: 'Outfit')),
+              SizedBox(height: 20),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _buildTextField("Correo electrónico", false, _emailController),
+                    SizedBox(height: 10),
+                    _buildTextField("Contraseña", true, _passwordController),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: isLoading ? null : () {
+                    if (_formKey.currentState?.validate() ?? false) login();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  ),
+                  child: isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text("Ingresar", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
+              ),
+              SizedBox(height: 5),
+              TextButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RecuperarCuentaScreen())),
+                child: Text("Olvidé mi contraseña", style: TextStyle(color: Colors.blue)),
+              ),
+              SizedBox(height: 50),
+              Text("o conéctate con:", style: TextStyle(fontSize: 25, color: Colors.black38, fontFamily: 'Comfortaa', fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildInkWellButton('assets/images/google.png', () => print("Botón Google presionado")),
+                  SizedBox(width: 15),
+                  _buildInkWellButton('assets/images/facebook.png', () => print("Botón Facebook presionado")),
+                  SizedBox(width: 15),
+                  _buildInkWellButton('assets/images/huella_dactilar.png', _authenticate),
+                ],
+              ),
+              SizedBox(height: 30),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
