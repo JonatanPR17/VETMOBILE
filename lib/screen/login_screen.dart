@@ -271,6 +271,7 @@ import 'package:vetmobile/data/usecase/authentication_usecase_imp.dart';
 import '../screen/recover_account_screen.dart';
 import 'package:vetmobile/domain/auth/models/login_request.dart';
 import 'welcome_screen.dart'; // Importa la nueva pantalla
+import '../data/source/localstorage/huella_auth.dart'; // Importa la clase de autenticación biométrica
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -290,6 +291,27 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  // Función para manejar la autenticación biométrica
+  Future<void> _authenticate() async {
+    try {
+      final authen = await HuellaAuth.authenticate();
+      if (authen) {
+        // Si la autenticación biométrica es exitosa, proceder al login
+        login(context);
+      } else {
+        // Si no es exitosa, mostrar un mensaje de error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Autenticación biométrica fallida")),
+        );
+      }
+    } catch (e) {
+      // En caso de error, mostramos una alerta
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al intentar autenticar: $e")),
+      );
+    }
   }
 
   @override
@@ -418,11 +440,20 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildSocialButton('assets/images/google.png'),
+                  _buildInkWellButton('assets/images/google.png', () {
+                    print("Botón Google presionado");
+                    // Acción para Google
+                  }),
                   SizedBox(width: 15),
-                  _buildSocialButton('assets/images/facebook.png'),
+                  _buildInkWellButton('assets/images/facebook.png', () {
+                    print("Botón Facebook presionado");
+                    // Acción para Facebook
+                  }),
                   SizedBox(width: 15),
-                  _buildSocialButton('assets/images/huella_dactilar.png'),
+                  _buildInkWellButton('assets/images/huella_dactilar.png', () {
+                    print("Botón Huella dactilar presionado");
+                    _authenticate(); // Llama a la función de autenticación
+                  }),
                 ],
               ),
               SizedBox(height: 30),
@@ -474,6 +505,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
         return null;
       },
+    );
+  }
+
+  Widget _buildInkWellButton(String imagePath, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: _buildSocialButton(imagePath),
     );
   }
 
