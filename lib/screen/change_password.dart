@@ -118,53 +118,51 @@ class _CambiarContrasenaScreenState extends State<CambiarContrasenaScreen> {
                 });
               }),
               SizedBox(height: 30),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+              // Aquí he removido el Padding alrededor del SizedBox
+              SizedBox(
+                width: double.infinity, // Esto hace que el botón tenga el mismo ancho que el contenedor
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    onPressed: _isLoading
-                        ? null
-                        : () {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() {
-                                _isLoading = true; // Activamos el estado de carga
-                              });
-
-                              // Simula un retraso de actualización, puedes reemplazarlo con una llamada real a un servicio
-                              Future.delayed(Duration(seconds: 2), () {
-                                setState(() {
-                                  _isLoading = false; // Desactivamos el estado de carga
-                                });
-
-                                // Si todo es válido, vamos al welcome screen
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
-                                );
-                              });
-                            }
-                          },
-                    child: _isLoading
-                        ? CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ) // Mostrar indicador de carga
-                        : Text(
-                            "Actualizar Cambios",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontFamily: 'Comfortaa',
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                   ),
+                  onPressed: _isLoading
+                      ? null
+                      : () {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = true; // Activamos el estado de carga
+                            });
+
+                            // Simula un retraso de actualización, puedes reemplazarlo con una llamada real a un servicio
+                            Future.delayed(Duration(seconds: 2), () {
+                              setState(() {
+                                _isLoading = false; // Desactivamos el estado de carga
+                              });
+
+                              // Si todo es válido, vamos al welcome screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                              );
+                            });
+                          }
+                        },
+                  child: _isLoading
+                      ? CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ) // Mostrar indicador de carga
+                      : Text(
+                          "Actualizar Cambios",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
               Expanded(child: Container()),
